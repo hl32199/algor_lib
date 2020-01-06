@@ -18,21 +18,7 @@ func Base26toDecimal(source string) string {
 		temp = temp.Multi(26)
 	}
 
-	length := len(result)
-	resBuf := bytes.NewBuffer([]byte{})
-	var maxInd int
-	for i := length - 1; i >= 0; i-- {
-		if result[i] > 0 {
-			maxInd = i
-			break
-		}
-	}
-
-	for i := maxInd; i >= 0; i-- {
-		s := strconv.Itoa(int(result[i]))
-		resBuf.WriteString(s)
-	}
-	return resBuf.String()
+	return result.String()
 }
 
 //数组形式表示的十进制数
@@ -86,4 +72,22 @@ func (ii IntMap) Multi(j uint) IntMap {
 	}
 
 	return i
+}
+
+func (ii IntMap) String() string {
+	length := len(ii)
+	resBuf := bytes.NewBuffer([]byte{})
+	var maxInd int
+	for i := length - 1; i >= 0; i-- {
+		if ii[i] > 0 {
+			maxInd = i
+			break
+		}
+	}
+
+	for i := maxInd; i >= 0; i-- {
+		s := strconv.Itoa(int(ii[i]))
+		resBuf.WriteString(s)
+	}
+	return resBuf.String()
 }
