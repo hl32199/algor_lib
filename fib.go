@@ -27,6 +27,9 @@ func fib2(n uint, tmpMap map[uint]uint) uint {
 		return n
 	}
 
-	tmpMap[n] = fib2(n-2, tmpMap) + fib2(n-1, tmpMap)
+	if res, ok := tmpMap[n]; ok == true {
+		return res
+	}
+	tmpMap[n] = fib2(n-1, tmpMap) + fib2(n-2, tmpMap)
 	return tmpMap[n]
 }
