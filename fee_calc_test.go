@@ -9,7 +9,6 @@ func TestGetFeeCalculator(t *testing.T) {
 		{UpperCount: 5, Fee: 30.00},
 		{UpperCount: 20, Fee: 15.00},
 		{UpperCount: 50, Fee: 10.00},
-		{UpperCount: 100, Fee: 9.00},
 		{UpperCount: 500, Fee: 8.00},
 		{UpperCount: 1000, Fee: 7.00},
 		{UpperCount: 2000, Fee: 6.00},
@@ -18,15 +17,16 @@ func TestGetFeeCalculator(t *testing.T) {
 		{UpperCount: 5000, Fee: 3.00},
 		{UpperCount: 6000, Fee: 2.00},
 		{UpperCount: 0, Fee: 1.00},
+		{UpperCount: 100, Fee: 9.00},
 	}
 
 	calculator, err := GetFeeCalculator(configList)
 	if err != nil {
 		t.Fatalf("get fee calculator error,:%s", err)
 	}
-	t.Logf("config list:%#v", calculator.ConfigList[0])
-	t.Logf("config list:%#v", calculator.ConfigList[1])
-	t.Logf("config list:%#v", calculator.ConfigList[11])
+	for _, config := range calculator.ConfigList {
+		t.Logf("config list:%#v", config)
+	}
 	if len(calculator.ConfigList) != 12 {
 		t.Fatalf("wrong config list length,lentgh:%d,should:%d", len(calculator.ConfigList), 12)
 	}

@@ -16,18 +16,25 @@ func (f *FeeCalc) Init(configList []ConfigItem) error {
 		}
 
 		newItem := item
+		inserted := false
 		for k, config := range f.ConfigList {
 			if config.UpperCount == newItem.UpperCount {
 				//重复的配置覆盖前面的
 				*f.ConfigList[k] = newItem
+				inserted = true
 				break
 			} else if config.UpperCount > newItem.UpperCount {
-				newList := append(f.ConfigList[:k], &newItem)
-				f.ConfigList = append(newList, f.ConfigList[k:]...)
+				f.ConfigList = append(f.ConfigList, nil)
+				copy(f.ConfigList[k+1:], f.ConfigList[k:])
+				f.ConfigList[k] = &newItem
+				inserted = true
 				break
 			}
 		}
-		f.ConfigList = append(f.ConfigList, &newItem)
+
+		if !inserted {
+			f.ConfigList = append(f.ConfigList, &newItem)
+		}
 	}
 
 	if lastItem == (ConfigItem{}) {
@@ -70,7 +77,7 @@ func (f *FeeCalc) Calc(count int) (float64, error) {
 
 	for _, config := range f.ConfigList {
 		if count <= config.UpperCount || config.UpperCount == 0 {
-			return (config.Fee*float64(count) + config.QuickPlus), nil
+			return config.Fee*float64(count) + config.QuickPlus, nil
 		}
 	}
 	return 0, errors.New("not find match gear")
