@@ -10,20 +10,13 @@ type authNode struct {
 	children []*authNode
 }
 
+//对应从数据库查出来的权限点，应该包含父节点id和自身id两个属性
 type authItem struct {
 	parent uint32
 	id     uint32
 }
 
-func (n *authNode) getSortedChildIds() []uint32 {
-	ids := make([]uint32, 0, len(n.children))
-	for _, node := range n.children {
-		ids = addToSortedSlice(ids, node.id)
-	}
-
-	return ids
-}
-
+//往一个有序数组里加入元素，保持数组有序
 func addToSortedSlice(list []uint32, item uint32) []uint32 {
 	if len(list) == 0 || item >= list[len(list)-1] {
 		list = append(list, item)

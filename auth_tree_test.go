@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func (n *authNode) getSortedChildIds() []uint32 {
+	ids := make([]uint32, 0, len(n.children))
+	for _, node := range n.children {
+		ids = addToSortedSlice(ids, node.id)
+	}
+
+	return ids
+}
+
 func TestInitAuthMap(t *testing.T) {
 	list := []authItem{
 		{23, 231}, {1, 11}, {23, 233}, {0, 3}, {2, 22}, {2, 23},
