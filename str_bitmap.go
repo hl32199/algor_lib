@@ -6,11 +6,13 @@ type StrBitmap struct {
 	bytes []byte
 }
 
-func GetBitMap(rawStr string) StrBitmap {
+func GetStrBitMap(rawStr string) StrBitmap {
 	return StrBitmap{[]byte(rawStr)}
 }
 
-func (m *StrBitmap) SetBit(pos uint32, hasValue bool) error {
+//设置比特位
+//pos 比特位，从1开始
+func (m *StrBitmap) SetBit(pos uint32) error {
 	if m == nil {
 		return errors.New("uninitialized Bitmap")
 	}
@@ -18,48 +20,71 @@ func (m *StrBitmap) SetBit(pos uint32, hasValue bool) error {
 		return errors.New("pos should be greater than 0")
 	}
 
-	bytePos, bitPos := getBytePosBitPos(pos)
+	realPos := pos - 1
+	bytePos := getBytePos(realPos)
+	bitPos := getBitPos(realPos)
 
 	if bytePos >= uint32(len(m.bytes)) {
-		if hasValue {
-			m.bytes = append(m.bytes, make([]byte, bytePos-uint32(len(m.bytes))+1)...)
-		} else {
-			return nil
-		}
+		m.bytes = append(m.bytes, make([]byte, bytePos-uint32(len(m.bytes))+1)...)
 	}
 
-	if hasValue {
-		m.bytes[bytePos] = m.bytes[bytePos] | (1 << bitPos)
-	} else {
-		m.bytes[bytePos] = m.bytes[bytePos] & ^(1 << bitPos)
-	}
-
+	m.bytes[bytePos] = m.bytes[bytePos] | (1 << bitPos)
 	return nil
 }
 
+//取消比特位
+//pos 比特位，从1开始
+func (m *StrBitmap) UnsetBit(pos uint32) error {
+	if m == nil {
+		return errors.New("uninitialized Bitmap")
+	}
+	if pos == 0 {
+		return errors.New("pos should be greater than 0")
+	}
+
+	realPos := pos - 1
+	bytePos := getBytePos(realPos)
+	bitPos := getBitPos(realPos)
+
+	if bytePos >= uint32(len(m.bytes)) {
+		return nil
+	}
+
+	m.bytes[bytePos] = m.bytes[bytePos] & ^(1 << bitPos)
+	return nil
+}
+
+//查询比特位
+//pos 比特位，从1开始
 func (m StrBitmap) GetBit(pos uint32) bool {
-	bytePos, bitPos := getBytePosBitPos(pos)
+	if pos == 0 {
+		return false
+	}
+
+	realPos := pos - 1
+	bytePos := getBytePos(realPos)
 	if bytePos >= uint32(len(m.bytes)) {
 		return false
 	}
 
-	if m.bytes[bytePos]&(1<<bitPos) > 0 {
+	if m.bytes[bytePos]&(1<<getBitPos(realPos)) > 0 {
 		return true
 	}
 	return false
 }
 
-//pos 要查询的比特位
-//bytePos pos所在的字节的索引
-//bitPos pos在所在字节的比特位索引
-//例如，11在第2个字节的第3位，所以bytePos=1，bitPos=2
-func getBytePosBitPos(pos uint32) (bytePos uint32, bitPos uint32) {
-	bytePos = pos / 8
-	if pos%8 == 0 {
-		bytePos--
-	}
-	bitPos = (pos + 7) % 8
-	return
+//查询一个位所在的字节的索引
+//realPos 要查询的比特位，realPos从0开始，pos从1开始，realPos = pos -1
+//例如，11在第2个字节的第3位，所以bytePos=1
+func getBytePos(realPos uint32) uint32 {
+	return realPos >> 3
+}
+
+//查询一个位在所在的字节当中位的索引，范围为0-7
+//realPos 要查询的比特位，realPos从0开始，pos从1开始，realPos = pos -1
+//例如，11在第2个字节的第3位，所以bitPos=2
+func getBitPos(realPos uint32) uint32 {
+	return realPos & 7
 }
 
 func (m StrBitmap) GetStr() string {
